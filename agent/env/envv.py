@@ -88,6 +88,7 @@ class WarehouseEnvironment:
         self.item = Item('agent', self.agent.x, self.agent.y, 5, 5, time, 0, time, 0, 'black')
         self.task_positions = []
         self.conflict_count = 0
+        self.out_list = []
         self.item_random = None
         self.initial_state = {
             'agent_has_item': self.agent_has_item,
@@ -269,7 +270,16 @@ class WarehouseEnvironment:
     def get_earliest_item(self):
         if len(self.items) > 0 and self.target_position == (0, 0):
             # 获取最早出场时间的物品
-            earliest_item = min(list(self.items.values()), key=lambda x: datetime.strptime(x.exit_time, "%Y/%m/%d"))
+            sorted_items = sorted(list(self.items.values()), key=lambda x: datetime.strptime(x.exit_time, "%Y/%m/%d"))
+            min_date = sorted_items[0].exit_time
+            print("===================================================================================")
+            print("sorted_items: ")
+            for item in sorted_items:
+                print(item.item_id, item.exit_time)
+            filtered_items = list(filter(lambda x: x.exit_time == min_date, sorted_items))
+            sorted_items = sorted(filtered_items, key=lambda x: x.time_remain)
+            earliest_item = min(sorted_items, key=lambda x: x.x)
+
             print("earliest_item: ", earliest_item.item_id, earliest_item.exit_time)
             print("current_time: ", self.current_time)
             if datetime.strptime(earliest_item.exit_time, "%Y/%m/%d") <= self.current_time:
@@ -510,11 +520,17 @@ class WarehouseEnvironment:
             self.total_step_time = 0
             self.total_step_time = round(self.total_step_time, 5)
             # 记录每一步的信息
+            self.out_list.append(self.item)
             self.record_step(action, reward, done)
             if not list(self.items.values()):
                 pass
             else:
                 earliest_item = min(list(self.items.values()), key=lambda x: datetime.strptime(x.exit_time, "%Y/%m/%d"))
+                # # 获取最早出场时间的物品
+                # sorted_items = sorted(list(self.items.values()), key=lambda x: x.exit_time)
+                # sorted_items = sorted(sorted_items, key=lambda x: x.time_remain)
+                # earliest_item = min(sorted_items, key=lambda x: x.x)
+
                 # if datetime.strptime(earliest_item.exit_time, "%Y/%m/%d") == \
                 #         datetime.strptime(str(datetime.strptime(self.current_time, "%Y/%m/%d")), "%Y/%m/%d"):
                 #     pass
@@ -542,6 +558,21 @@ class WarehouseEnvironment:
             self.choose_road(self.width, self.agent.y)
             self.target_position = self.task_positions.pop(-1)
 
+    def out_list(self):
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        base_filename = f"{current_date}_out_list_records.csv"
+
+        path = base_filename
+
+        # Check if the file with today's date already exists
+
+        with open(path, mode='w', newline='') as file:
+            fieldnames = ['item_id', 'entry_time', 'exit_time']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for item in self.out_list():
+                writer.writerow(item)
     def save_records_to_csv(self):
         current_date = datetime.now().strftime("%Y-%m-%d")
         base_filename = f"{current_date}_simulation_records.csv"
@@ -632,10 +663,10 @@ class WarehouseEnvironment:
         self.agent = self.item
         if self.agent.length - target_row < 0:
             self.check_item(item.item_id, 1, item.y - target_row, item.length, item.width, item.start_time,
-                            item.processing_time, item.exit_time)
+                            item.processing_time, item.exit_time,item.time_remain)
         else:
             self.check_item(item.item_id, 1, item.y + target_row, item.length, item.width, item.start_time,
-                            item.processing_time, item.exit_time)
+                            item.processing_time, item.exit_time, item.time_remain)
 
     def exchange_agent_item(self, interfering_item):
         """
@@ -730,7 +761,7 @@ class WarehouseEnvironment:
         # 在这里添加检查冲突的逻辑，例如检查与其他物体的碰撞等
         item = Item(current_item.item_id, current_item.x, current_item.y + target_row, current_item.length,
                     current_item.width,
-                    current_item.start_time, current_item.processing_time, current_item.exit_time, current_item.color)
+                    current_item.start_time, current_item.processing_time, current_item.exit_time,current_item.time_remain ,current_item.color)
 
         is_conflict = self.check_collision(current_item, item)
 
@@ -880,7 +911,7 @@ class WarehouseEnvironment:
             print("item.id:      " + item.item_id + "             " + str(item.y))
             print("item.length:      " + str(self.segment_heights[index]) + "             " + str(item.length))
             com_y_items = self.filter_item_by_y(item.y)
-            com_y_items.sort(key=lambda x: x.time_remain, reverse=True)
+            com_y_items.sort(key=lambda x: x.x, reverse=True)
             if com_y_items:
                 # 如果存在相同 y 坐标的物品，则设置添加物品的 x 为前面物品的 x + width
                 last_item = com_y_items[0]
