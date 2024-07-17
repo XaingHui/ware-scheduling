@@ -134,7 +134,10 @@ def add_items_from_csv(env, csv_file):
             start_time = str(row[6])
             exit_time = str(row[7])
             processing_time = 5
-            time_remian = int(row[12])
+            if row[12] == '':
+                time_remian = 0
+            else:
+                time_remian = int(row[12])
 
             # 添加物品到环境
             env.check_item(item_id, x, y, length, width, start_time, processing_time, exit_time, time_remian)

@@ -64,7 +64,7 @@ class WarehouseEnvironment:
         self.segment_low = []
 
         self.grid = np.zeros((height, width), dtype=object)
-        self.agent = Item('agent', 0, 0, 5, 5, time, 0, time, 'black')
+        self.agent = Item('agent', 0, 0, 5, 5, time, 0, time, 0, 'black')
 
         self.items = {}
         self.colors = list(mcolors.TABLEAU_COLORS)
@@ -85,7 +85,7 @@ class WarehouseEnvironment:
         self.agent_has_item = False
         self.total_reward = 0
         self.total_step_time = 0
-        self.item = Item('agent', self.agent.x, self.agent.y, 5, 5, time, 0, time, 'black')
+        self.item = Item('agent', self.agent.x, self.agent.y, 5, 5, time, 0, time, 0, 'black')
         self.task_positions = []
         self.conflict_count = 0
         self.item_random = None
@@ -827,7 +827,7 @@ class WarehouseEnvironment:
         self.seg_mid_length = seg_mid_length
         self.seg_low_length = seg_low_length
 
-    def check_item(self, item_id, x, y, length, width, start_time, processing_time, exit_time):
+    def check_item(self, item_id, x, y, length, width, start_time, processing_time, exit_time, time_remain):
         """
         检查到达的物品对象。
         如果物品的到达时间早于当前时间，则将物品添加到环境中。
@@ -839,7 +839,7 @@ class WarehouseEnvironment:
         返回：
         - 无返回值
         """
-        item = self.add_item(item_id, x, y, length, width, start_time, processing_time, exit_time)
+        item = self.add_item(item_id, x, y, length, width, start_time, processing_time, exit_time, time_remain)
         # print(item_id + "  " + item.start_time.__str__())
         self.divide_seg(item.length)
         # 创建一个列表来存储y轴刻度的位置
@@ -880,7 +880,7 @@ class WarehouseEnvironment:
             print("item.id:      " + item.item_id + "             " + str(item.y))
             print("item.length:      " + str(self.segment_heights[index]) + "             " + str(item.length))
             com_y_items = self.filter_item_by_y(item.y)
-            com_y_items.sort(key=lambda x: x.x, reverse=True)
+            com_y_items.sort(key=lambda x: x.time_remain, reverse=True)
             if com_y_items:
                 # 如果存在相同 y 坐标的物品，则设置添加物品的 x 为前面物品的 x + width
                 last_item = com_y_items[0]
@@ -1086,9 +1086,9 @@ class WarehouseEnvironment:
 
     def getInitItem(self):
         if self.tag_top:
-            init_item = Item('agent', 0, 20, 5, 5, '2017/9/1', 0, '2017/9/1', 'black')
+            init_item = Item('agent', 0, 20, 5, 5, '2017/9/1', 0, '2017/9/1',0, 'black')
         else:
-            init_item = Item('agent', 0, 0, 5, 5, '2017/9/1', 0, '2017/9/1', 'black')
+            init_item = Item('agent', 0, 0, 5, 5, '2017/9/1', 0, '2017/9/1',0, 'black')
         return init_item
 
 
