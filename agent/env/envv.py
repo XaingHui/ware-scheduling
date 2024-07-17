@@ -461,6 +461,9 @@ class WarehouseEnvironment:
             reward += 500  # 到达目标位置的奖励
             if self.agent.x >= self.width or self.agent.x <= 0 \
                     or self.agent.y <= 0 or self.agent.get_rectangle()[3] >= self.height:
+                # 记录每一步的信息
+                self.out_list.append(self.item)
+                self.out_listed()
                 self.item = self.getInitItem()
                 tmp_agent_x = self.agent.x
                 tmp_agent_y = self.agent.y
@@ -519,8 +522,6 @@ class WarehouseEnvironment:
             # self.target_position = (0, 0)
             self.total_step_time = 0
             self.total_step_time = round(self.total_step_time, 5)
-            # 记录每一步的信息
-            self.out_list.append(self.item)
             self.record_step(action, reward, done)
             if not list(self.items.values()):
                 pass
@@ -558,7 +559,7 @@ class WarehouseEnvironment:
             self.choose_road(self.width, self.agent.y)
             self.target_position = self.task_positions.pop(-1)
 
-    def out_list(self):
+    def out_listed(self):
         current_date = datetime.now().strftime("%Y-%m-%d")
         base_filename = f"{current_date}_out_list_records.csv"
 
@@ -567,12 +568,16 @@ class WarehouseEnvironment:
         # Check if the file with today's date already exists
 
         with open(path, mode='w', newline='') as file:
-            fieldnames = ['item_id', 'entry_time', 'exit_time']
+            fieldnames = ['item_id', 'start_time', 'exit_time']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
             writer.writeheader()
-            for item in self.out_list():
-                writer.writerow(item)
+            for item in self.out_list:
+                writer.writerow({
+                    'item_id': item.item_id,
+                    'start_time': item.start_time,
+                    'exit_time': item.exit_time
+                })
     def save_records_to_csv(self):
         current_date = datetime.now().strftime("%Y-%m-%d")
         base_filename = f"{current_date}_simulation_records.csv"
