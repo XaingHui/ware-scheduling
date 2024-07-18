@@ -171,7 +171,7 @@ class WarehouseEnvironment:
         start_time = self.start_time.second
         end_time = datetime.now().second
         hours = abs(int(end_time - start_time))
-        self.current_time += timedelta(minutes=hours * 0.8)
+        self.current_time += timedelta(minutes=hours * 0.1)
         print(self.current_time)
 
     def get_state(self):
@@ -277,9 +277,13 @@ class WarehouseEnvironment:
             for item in sorted_items:
                 print(item.item_id, item.exit_time)
             filtered_items = list(filter(lambda x: x.exit_time == min_date, sorted_items))
+
             sorted_items = sorted(filtered_items, key=lambda x: x.time_remain)
             sorted_items.reverse()
-            earliest_item = min(sorted_items, key=lambda x: x.x)
+
+            min_time_remain = sorted_items[0].time_remain
+            sorted_items_remain = list(filter(lambda x: x.exit_time == min_time_remain, sorted_items))
+            earliest_item = min(sorted_items_remain, key=lambda x: x.x)
 
             print("earliest_item: ", earliest_item.item_id, earliest_item.exit_time)
             print("current_time: ", self.current_time)
@@ -381,6 +385,8 @@ class WarehouseEnvironment:
                     print("------------------------item 为空--------------------")
                     if len(self.task_positions) == 0 and len(self.interfering_items) == 0:
                         self.target_position = (0, 0)
+                    else:
+                        self.target_position = self.task_positions.pop(-1)
                 else:
                     self.item = item
                     self.agent = self.item
@@ -579,6 +585,7 @@ class WarehouseEnvironment:
                     'start_time': item.start_time,
                     'exit_time': item.exit_time
                 })
+
     def save_records_to_csv(self):
         current_date = datetime.now().strftime("%Y-%m-%d")
         base_filename = f"{current_date}_simulation_records.csv"
@@ -669,7 +676,7 @@ class WarehouseEnvironment:
         self.agent = self.item
         if self.agent.length - target_row < 0:
             self.check_item(item.item_id, 1, item.y - target_row, item.length, item.width, item.start_time,
-                            item.processing_time, item.exit_time,item.time_remain)
+                            item.processing_time, item.exit_time, item.time_remain)
         else:
             self.check_item(item.item_id, 1, item.y + target_row, item.length, item.width, item.start_time,
                             item.processing_time, item.exit_time, item.time_remain)
@@ -767,7 +774,8 @@ class WarehouseEnvironment:
         # 在这里添加检查冲突的逻辑，例如检查与其他物体的碰撞等
         item = Item(current_item.item_id, current_item.x, current_item.y + target_row, current_item.length,
                     current_item.width,
-                    current_item.start_time, current_item.processing_time, current_item.exit_time,current_item.time_remain ,current_item.color)
+                    current_item.start_time, current_item.processing_time, current_item.exit_time,
+                    current_item.time_remain, current_item.color)
 
         is_conflict = self.check_collision(current_item, item)
 
@@ -1123,9 +1131,9 @@ class WarehouseEnvironment:
 
     def getInitItem(self):
         if self.tag_top:
-            init_item = Item('agent', 0, 20, 5, 5, '2017/9/1', 0, '2017/9/1',0, 'black')
+            init_item = Item('agent', 0, 20, 5, 5, '2017/9/1', 0, '2017/9/1', 0, 'black')
         else:
-            init_item = Item('agent', 0, 0, 5, 5, '2017/9/1', 0, '2017/9/1',0, 'black')
+            init_item = Item('agent', 0, 0, 5, 5, '2017/9/1', 0, '2017/9/1', 0, 'black')
         return init_item
 
 
