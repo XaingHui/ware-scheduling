@@ -391,7 +391,7 @@ class WarehouseEnvironment:
                     # this is need to code
                     self.choose_road(self.agent.x, item.y)
                     # self.task_positions.append((self.width, item.y))
-                    self.target_position = self.task_positions.pop(-1)
+                    # self.target_position = self.task_positions.pop(-1)
         except Exception as e:
             print(f"An error occurred in is_two: {e}")
             print("任务列表:", self.task_positions)
