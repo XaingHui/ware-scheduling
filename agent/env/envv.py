@@ -127,20 +127,16 @@ class WarehouseEnvironment:
             print(f"Choosing road: {min_distance_road}")
             if min_distance_road == 'distance_x_left':
                 self.task_positions.append((0, self.agent.y))
-                print("Test... Task Position...")
-                print(self.task_positions)
+
             elif min_distance_road == 'distance_x_right':
                 self.task_positions.append((self.width, self.agent.y))
-                print("Test... Task Position...")
-                print(self.task_positions)
+
             elif min_distance_road == 'distance_y_top':
                 self.task_positions.append((self.agent.x, 0))
-                print("Test... Task Position...")
-                print(self.task_positions)
+
             elif min_distance_road == 'distance_y_bottom':
                 self.task_positions.append((self.agent.x, self.height - self.agent.length))
-                print("Test... Task Position...")
-                print(self.task_positions)
+
         else:
             print("No valid roads found.")
 
@@ -272,17 +268,17 @@ class WarehouseEnvironment:
             # 获取最早出场时间的物品
             sorted_items = sorted(list(self.items.values()), key=lambda x: datetime.strptime(x.exit_time, "%Y/%m/%d"))
             min_date = sorted_items[0].exit_time
-            print("===================================================================================")
-            print("sorted_items: ")
-            for item in sorted_items:
-                print(item.item_id, item.exit_time)
             filtered_items = list(filter(lambda x: x.exit_time == min_date, sorted_items))
 
             sorted_items = sorted(filtered_items, key=lambda x: x.time_remain)
-            sorted_items.reverse()
 
             min_time_remain = sorted_items[0].time_remain
-            sorted_items_remain = list(filter(lambda x: x.exit_time == min_time_remain, sorted_items))
+            sorted_items_remain = list(filter(lambda x: x.time_remain == min_time_remain, sorted_items))
+
+            print("===================================================================================")
+            print("sorted_items: ")
+            for item in sorted_items_remain:
+                print(item.item_id, item.exit_time)
             earliest_item = min(sorted_items_remain, key=lambda x: x.x)
 
             print("earliest_item: ", earliest_item.item_id, earliest_item.exit_time)
@@ -406,9 +402,9 @@ class WarehouseEnvironment:
     def step(self, action):
         print("---------------------------------------------------------------")
         print("现在干涉物品的长度：  " + str(len(self.interfering_items)))
-        print("现在的物品有:")
-        for k, v in self.items.items():
-            print(k, v.item_id)
+        # print("现在的物品有:")
+        # for k, v in self.items.items():
+        #     print(k, v.item_id)
         # for interfering in self.interfering_items:
         #     print("干涉物品是：  " + str(interfering.item_id) + "  " + str(interfering.x) + "  " + str(interfering.y))
         if self.agent_has_item:
@@ -922,8 +918,8 @@ class WarehouseEnvironment:
             else:
                 index = 0
             item.y = self.y_positions[index]
-            print("item.id:      " + item.item_id + "             " + str(item.y))
-            print("item.length:      " + str(self.segment_heights[index]) + "             " + str(item.length))
+            # print("item.id:      " + item.item_id + "             " + str(item.y))
+            # print("item.length:      " + str(self.segment_heights[index]) + "             " + str(item.length))
             com_y_items = self.filter_item_by_y(item.y)
             com_y_items.sort(key=lambda x: x.x, reverse=True)
             if com_y_items:
