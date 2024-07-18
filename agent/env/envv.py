@@ -278,6 +278,7 @@ class WarehouseEnvironment:
                 print(item.item_id, item.exit_time)
             filtered_items = list(filter(lambda x: x.exit_time == min_date, sorted_items))
             sorted_items = sorted(filtered_items, key=lambda x: x.time_remain)
+            sorted_items.reverse()
             earliest_item = min(sorted_items, key=lambda x: x.x)
 
             print("earliest_item: ", earliest_item.item_id, earliest_item.exit_time)
@@ -442,7 +443,7 @@ class WarehouseEnvironment:
         # -------------------分割线----------------------
 
         # 计算奖励
-        if self.target_position != (0, 0) and self.target_position[0] < 75:
+        if self.target_position != (0, 0) and self.target_position[0] < self.width:
             x_distance_to_target = abs(self.agent.x - self.target_position[0])
             y_distance_to_target = abs(self.agent.y - self.target_position[1])
             reward += 300.0 - x_distance_to_target - y_distance_to_target  # 根据距离计算奖励
@@ -977,7 +978,7 @@ class WarehouseEnvironment:
         :return: item_id
         """
         for (k, v) in self.items.items():
-            if k[0] >= self.width or k[0] <= 0 or v.get_rectangle()[3] >= self.height or k[1] <= 0:
+            if k[0] >= self.width or k[0] < 0 or v.get_rectangle()[3] >= self.height or k[1] < 0:
                 item_id = v.item_id
                 self.remove_item(v)
                 return item_id
