@@ -305,7 +305,7 @@ class WarehouseEnvironment:
             print("机器人到达要添加物品的位置：", item.x, item.y)
             self.check_item(item.item_id, 1, item.y, item.length, item.width, item.start_time,
                             item.processing_time,
-                            item.exit_time)
+                            item.exit_time,item.time_remain)
             self.item = self.getInitItem()
             tmp_agent_x = self.agent.x
             tmp_agent_y = self.agent.y

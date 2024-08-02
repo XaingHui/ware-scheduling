@@ -148,7 +148,7 @@ def main():
     env.setRoads('right')
     env.initialize_segment(92, 58, 70, 20, 16, 12)
 
-    add_items_from_csv(env, '../data_change/segment01.csv')
+    add_items_from_csv(env, '../data_change/segment01-min.csv')
     env.render()
     state_size = len(env.get_state())
     action_size = 4  # 代表上移、下移和不执行动作
