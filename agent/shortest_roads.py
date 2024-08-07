@@ -97,5 +97,4 @@ for index, row in data.iterrows():
 
 # 将结果写入 Excel 文件
 with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-    data.to_excel(writer, sheet_name='输入数据', index=False)
     results.to_excel(writer, sheet_name='最短路径', index=False)
