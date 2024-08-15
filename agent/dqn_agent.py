@@ -144,11 +144,11 @@ def add_items_from_csv(env, csv_file):
 
 
 def main():
-    env = WarehouseEnvironment(width=250, height=200, number=90, time='2024/4/25')
+    env = WarehouseEnvironment(width=250, height=200, number=90, time='2024/4/26')
     env.setRoads('right')
     env.initialize_segment(92, 58, 70, 20, 16, 12)
 
-    add_items_from_csv(env, '../data_change/segment01-min.csv')
+    add_items_from_csv(env, '../data_change/min-test.csv')
     env.render()
     state_size = len(env.get_state())
     action_size = 4  # 代表上移、下移和不执行动作
