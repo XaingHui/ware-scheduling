@@ -10,6 +10,11 @@ import matplotlib.colors as mcolors
 from datetime import datetime, timedelta
 
 
+class ItemPickupError(Exception):
+    """Custom exception for item pickup failure."""
+    pass
+
+
 class Item:
     def __init__(self, item_id, x, y, length, width, start_time, processing_time, exit_time, time_remain, color):
         self.item_id = item_id
@@ -261,7 +266,7 @@ class WarehouseEnvironment:
             # time.sleep(0.001 * move_x_distance)
         else:
             print("Invalid action!")
-            reward = -100
+            reward = -1000
 
     def get_earliest_item(self):
         if len(self.items) > 0 and self.target_position == (0, 0):
@@ -347,7 +352,10 @@ class WarehouseEnvironment:
         try:
             if self.arrive_interfering_position():
                 self.add_interfering_item()
+                print("============================================")
                 self.agent_has_item = False
+                print('错错错错错错')
+                print("============================================")
 
                 # Todo:为抽取方法
                 self.item = self.getInitItem()
@@ -375,20 +383,13 @@ class WarehouseEnvironment:
             if (self.agent_has_item == False) and (self.arrive_interfering_position() == False) and \
                     self.target_position != (0, 0):
                 item = self.items.get((self.target_position[0], self.target_position[1]))
-                # if len(self.task_positions) == 0 and len(self.interfering_items) == 0:
-                #     self.target_position = (0, 0)
-                # else:
-                #     self.target_position = self.task_positions.pop(-1)
 
                 self.item = item
                 self.agent = self.item
-                print("====================")
-                print(item)
-                if self.remove_item(item):
-                    self.agent_has_item = True
+                self.agent_has_item = True
                 self.choose_road(self.agent.x, item.y)
-                # self.task_positions.append((self.width, item.y))
-                # self.target_position = self.task_positions.pop(-1)
+                self.remove_item(item)
+
         except Exception as e:
             print(f"An error occurred in pick_up_item: {e}")
             print("任务列表:", self.task_positions)
