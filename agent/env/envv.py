@@ -306,7 +306,7 @@ class WarehouseEnvironment:
             print("干扰物品的是：", item.item_id)
             print("干扰物品的位置：", item.x, item.y)
             print("机器人到达要添加物品的位置：", item.x, item.y)
-            self.check_item(item.item_id, 0, item.y, item.length, item.width, item.start_time,
+            self.check_item(item.item_id, 1, item.y, item.length, item.width, item.start_time,
                             item.processing_time,
                             item.exit_time, item.time_remain)
 
@@ -352,10 +352,7 @@ class WarehouseEnvironment:
         try:
             if self.arrive_interfering_position():
                 self.add_interfering_item()
-                print("============================================")
                 self.agent_has_item = False
-                print('错错错错错错')
-                print("============================================")
 
                 # Todo:为抽取方法
                 self.item = self.getInitItem()
@@ -464,7 +461,8 @@ class WarehouseEnvironment:
             self.get_earliest_item()
 
         # -------------------分割线----------------------
-
+        # 执行动作并更新环境状态
+        self.agent_move(action, move_x_distance, move_y_distance)
         reward = self.conflict_resolve(reward)
 
         # -------------------分割线----------------------
@@ -484,9 +482,6 @@ class WarehouseEnvironment:
 
             if self.agent.x >= self.width or self.agent.x <= 0 \
                     or self.agent.y <= 0 or self.agent.get_rectangle()[3] >= self.height:
-                # 记录每一步的信息
-                self.out_list.append(self.item)
-                self.out_listed()
 
                 # Todo:为抽取方法
                 self.item = self.getInitItem()
@@ -504,9 +499,6 @@ class WarehouseEnvironment:
                     self.target_position = self.task_positions.pop(-1)
                 else:
                     print("task_positions is null")
-
-        # 执行动作并更新环境状态
-        self.agent_move(action, move_x_distance, move_y_distance)
 
         # -------------------分割线----------------------
 
@@ -568,6 +560,9 @@ class WarehouseEnvironment:
             self.total_step_time = 0
             self.total_step_time = round(self.total_step_time, 5)
             self.record_step(action, reward, done)
+            # 记录每一步的信息
+            self.out_list.append(self.item)
+            self.out_listed()
             if not list(self.items.values()):
                 pass
             else:
@@ -702,7 +697,11 @@ class WarehouseEnvironment:
             last_item = self.items[last_key]
             self.item = last_item
             self.items.pop(last_key)
+            # 保证agent只改变行的位置，而不改变x
+            tmp_agent_x = self.agent.x
             self.agent = self.item
+            self.agent.x = tmp_agent_x
+
             # this is need to code
             self.choose_road(self.item.x, self.item.y)
             # self.task_positions.append((self.width, self.item.y))
@@ -714,10 +713,10 @@ class WarehouseEnvironment:
         self.remove_item(item)
         self.agent = self.item
         if self.agent.length - target_row < 0:
-            self.check_item(item.item_id, 0, item.y - target_row, item.length, item.width, item.start_time,
+            self.check_item(item.item_id, 1, item.y - target_row, item.length, item.width, item.start_time,
                             item.processing_time, item.exit_time, item.time_remain)
         else:
-            self.check_item(item.item_id, 0, item.y + target_row, item.length, item.width, item.start_time,
+            self.check_item(item.item_id, 1, item.y + target_row, item.length, item.width, item.start_time,
                             item.processing_time, item.exit_time, item.time_remain)
 
     def exchange_agent_item(self, interfering_item):
@@ -971,7 +970,7 @@ class WarehouseEnvironment:
                 item.x = last_item.x + last_item.width + 1
             else:
                 # 如果不存在相同 y 坐标的物品，则设置添加物品的 x
-                item.x = item.x
+                item.x = item.x + 1
             self.items[(item.x, item.y)] = item
         else:
             if len(self.cache_items) == 0:
