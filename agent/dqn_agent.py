@@ -102,7 +102,7 @@ class DQNAgent:
             tf.keras.backend.clear_session()
 
             # 强制垃圾回收
-            gc.collect()
+            # gc.collect()
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 

@@ -540,7 +540,7 @@ class WarehouseEnvironment:
         new_state = self.get_state()
         self.clean_on_road()
         # 更新画图
-        # self.render()
+        self.render()
 
         # -------------------分割线----------------------
         """
