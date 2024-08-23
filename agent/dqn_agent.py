@@ -1,4 +1,5 @@
 import csv
+import gc
 
 import numpy as np
 import tensorflow
@@ -33,7 +34,7 @@ class DQNAgent:
         return model
 
     # def choose_action(self, state, agent_position, target_position, count):
-    #     if np.random.rand() <= self.epsilon and count > 0:
+    #     if np.random.rand() <= self.epsilon:
     #         return np.random.choice(self.action_size)
     #
     #     # 计算机器人当前位置和目标位置之间的水平和垂直距离
@@ -85,8 +86,6 @@ class DQNAgent:
 
     def train(self, batch_size=32):
         import tensorflow as tf
-        # 在适当的位置调用TensorFlow的清理函数
-        tf.keras.backend.clear_session()
 
         if len(self.memory) < batch_size:
             return
@@ -98,27 +97,15 @@ class DQNAgent:
             target_f = self.model.predict(state)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
+
+            # 清理会话
+            tf.keras.backend.clear_session()
+
+            # 强制垃圾回收
+            gc.collect()
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-
-# def add_items_from_csv(env, csv_file):
-#     with open(csv_file, 'r') as file:
-#         csv_reader = csv.reader(file)
-#         next(csv_reader)  # 跳过 CSV 文件的标题行
-#
-#         for row in csv_reader:
-#             item_id = row[0]
-#             x = int(row[1])
-#             y = int(row[2])
-#             length = int(row[3])
-#             width = int(row[4])
-#             start_time = str(row[5])
-#             processing_time = int(row[6])
-#             exit_time = str(row[7])
-#
-#             # 添加物品到环境
-#             env.check_item(item_id, x, y, length, width, start_time, processing_time, exit_time)
 
 def add_items_from_csv(env, csv_file):
     with open(csv_file, 'r') as file:
