@@ -506,7 +506,7 @@ class WarehouseEnvironment:
             x_distance_to_target = abs(self.agent.x - self.target_position[0])
             y_distance_to_target = abs(self.agent.y - self.target_position[1])
             # 根据距离计算奖励
-            reward += 12 - x_distance_to_target - y_distance_to_target
+            reward += 100 - x_distance_to_target - y_distance_to_target
 
         # -------------------分割线----------------------
         """
@@ -540,7 +540,7 @@ class WarehouseEnvironment:
         new_state = self.get_state()
         self.clean_on_road()
         # 更新画图
-        self.render()
+        # self.render()
 
         # -------------------分割线----------------------
         """
@@ -550,7 +550,7 @@ class WarehouseEnvironment:
         """
         if self.target_position == (0, 0) and len(self.task_positions) == 0 \
                 and len(self.interfering_items) == 0 and (self.agent.x, self.agent.y) != (0, 0):
-            reward = 0
+
             print("---------------------------任务完成-------------------------")
             done = True
             new_state = self.get_state()
@@ -559,7 +559,7 @@ class WarehouseEnvironment:
             self.total_step_time = 0
             self.total_step_time = round(self.total_step_time, 5)
             self.record_step(action, done)
-
+            reward = 0
             # -------------------分割线----------------------
             """
                 判断其中是否是属于self中的物品，如果是，那么就设置时间到最早出场物品的时间，立即开始任务  
@@ -712,6 +712,7 @@ class WarehouseEnvironment:
         """
         交换agent和interfering_item
         """
+        length_ex = len(self.items)
         self.task_positions.append((interfering_item.x, interfering_item.y))
         self.task_positions.append((self.agent.x, self.agent.y))
         self.agent.item_id = self.agent.item_id.strip('agent_')
@@ -732,6 +733,8 @@ class WarehouseEnvironment:
         self.item = interfering_item
         self.agent = self.item
         self.agent_has_item = True
+        if len(self.items) - length_ex == -1:
+            print('exchange error')
 
     def get_target_row(self, current_item):
         """
@@ -910,6 +913,7 @@ class WarehouseEnvironment:
         返回：
         - 无返回值
         """
+        length_check = len(self.items)
         item = self.add_item(item_id, x, y, length, width, start_time, processing_time, exit_time, time_remain)
         # print(item_id + "  " + item.start_time.__str__())
         self.divide_seg(item.length)
@@ -966,6 +970,9 @@ class WarehouseEnvironment:
             else:
                 if item not in self.cache_items:
                     self.cache_items.append(item)
+
+        if len(self.items) - length_check == 0:
+            print("add error")
 
     def filter_item_by_y(self, y):
         """
