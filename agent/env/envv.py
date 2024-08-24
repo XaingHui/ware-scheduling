@@ -200,8 +200,10 @@ class WarehouseEnvironment:
             move_x_distance = 10
         elif self.width / 4 > distance_x_to_target > self.width / 8:
             move_x_distance = int(distance_x_to_target / 2)
+            move_x_distance = 10
         elif self.width / 8 > distance_x_to_target > self.width / 16:
             move_x_distance = int(distance_x_to_target / 2)
+            move_x_distance = 10
 
         if distance_y_to_target > self.height / 2:
             move_y_distance = int(distance_y_to_target / 2)
@@ -211,9 +213,10 @@ class WarehouseEnvironment:
             move_y_distance = 10
         elif self.height / 4 > distance_y_to_target > self.height / 8:
             move_y_distance = int(distance_y_to_target / 2)
+            move_y_distance = 10
         elif self.height / 8 > distance_y_to_target > self.height / 16:
             move_y_distance = int(distance_y_to_target / 2)
-
+            move_y_distance = 10
         return move_x_distance, move_y_distance
 
     def has_cache_item(self):
