@@ -378,7 +378,9 @@ class WarehouseEnvironment:
             if (self.agent_has_item == False) and (self.arrive_interfering_position() == False) and \
                     self.target_position != (0, 0):
                 item = self.items.get((self.target_position[0], self.target_position[1]))
-
+                if item is None:
+                    self.target_position = self.task_positions.pop(-1)
+                    item = self.items.get((self.target_position[0], self.target_position[1]))
                 self.item = item
                 self.agent = self.item
                 self.agent_has_item = True
@@ -712,7 +714,6 @@ class WarehouseEnvironment:
         """
         交换agent和interfering_item
         """
-        length_ex = len(self.items)
         self.task_positions.append((interfering_item.x, interfering_item.y))
         self.task_positions.append((self.agent.x, self.agent.y))
         self.agent.item_id = self.agent.item_id.strip('agent_')
@@ -733,8 +734,6 @@ class WarehouseEnvironment:
         self.item = interfering_item
         self.agent = self.item
         self.agent_has_item = True
-        if len(self.items) - length_ex == -1:
-            print('exchange error')
 
     def get_target_row(self, current_item):
         """
